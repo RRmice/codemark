@@ -1,16 +1,21 @@
 package ru.codemark.test.codemark.services;
 
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.codemark.test.codemark.data.UserAnswer;
 import ru.codemark.test.codemark.entities.User;
 import ru.codemark.test.codemark.repositories.UserRepository;
+import ru.codemark.test.codemark.validators.UserValidator;
 
 import java.util.List;
+
 
 @Service
 public class UserService {
 
     private UserRepository userRepository;
+    private UserValidator userValidator;
 
     @Autowired
     public UserService(UserRepository userRepository){
@@ -21,8 +26,8 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User createNewUser(User user){
-        return userRepository.save(user);
+    public User createNewUser(User user) throws NotFoundException {
+       return userRepository.save(user);
     }
 
     public User getUserByLogin(String login){
@@ -43,8 +48,5 @@ public class UserService {
 
         userRepository.saveAndFlush(user);
         }
-
-
-
 
 }

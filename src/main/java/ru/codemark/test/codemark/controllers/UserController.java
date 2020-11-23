@@ -1,21 +1,20 @@
 package ru.codemark.test.codemark.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
-import ru.codemark.test.codemark.data.UserAnswer;
+import ru.codemark.test.codemark.data.UserAnswerError;
+import ru.codemark.test.codemark.data.UserAnswerSimple;
 import ru.codemark.test.codemark.dto.UserDto;
 import ru.codemark.test.codemark.entities.User;
 import ru.codemark.test.codemark.mappes.UserMapper;
 import ru.codemark.test.codemark.services.UserService;
-import ru.codemark.test.codemark.validators.UserValidator;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -23,12 +22,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final UserValidator userValidator;
+
 
     @Autowired
-    public UserController(UserService userService, UserValidator userValidator){
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userValidator = userValidator;
     }
 
     @GetMapping("/get_all")
@@ -44,31 +42,20 @@ public class UserController {
     @PostMapping("/add")
     public ResponseEntity<?> addUser(@ModelAttribute(name = "user") User user, BindingResult result){
 
-        HttpStatus httpStatus;
-        UserAnswer userAnswer = new UserAnswer();
-
-        userValidator.validate(user, result);
         if (result.hasErrors()){
-           List<String> errors = new ArrayList<>();
-            for (ObjectError oe: result.getAllErrors()) {
-                errors.add(oe.getCode());
-            }
+            List<String> errors = result.getAllErrors().stream()
+                    .map(e -> e.getDefaultMessage()).collect(Collectors.toList());
 
-            userAnswer.setErrors(errors);
-            httpStatus = HttpStatus.BAD_REQUEST;
-        } else {
-
-            try {
-                userService.createNewUser(user);
-                httpStatus = HttpStatus.CREATED;
-            } catch (Exception e) {
-                httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-                userAnswer.setError(e.toString());
-            }
+            return ResponseEntity.badRequest().body(new UserAnswerError().setErrors(errors));
         }
 
+       try {
+           userService.createNewUser(user);
+       } catch (NotFoundException e) {
+           return ResponseEntity.badRequest().body(new UserAnswerError().setError(e.getMessage()));
+       }
 
-        return new ResponseEntity<>(userAnswer, httpStatus);
+       return ResponseEntity.ok(new UserAnswerSimple());
 
     }
 
