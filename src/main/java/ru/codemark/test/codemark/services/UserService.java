@@ -3,10 +3,8 @@ package ru.codemark.test.codemark.services;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.codemark.test.codemark.data.UserAnswer;
 import ru.codemark.test.codemark.entities.User;
 import ru.codemark.test.codemark.repositories.UserRepository;
-import ru.codemark.test.codemark.validators.UserValidator;
 
 import java.util.List;
 
