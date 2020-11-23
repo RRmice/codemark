@@ -1,14 +1,18 @@
 package ru.codemark.test.codemark.data;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserAnswerError extends UserAnswerSimple {
+@Getter
+public class UserAnswerError implements UserAnswer {
 
-    List<String> errors;
+    private boolean success;
+    private List<String> errors;
 
     public UserAnswerError() {
-        super(false);
+        success = false;
         errors = new ArrayList<>();
     }
 

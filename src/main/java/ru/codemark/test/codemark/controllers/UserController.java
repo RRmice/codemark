@@ -5,16 +5,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
+import ru.codemark.test.codemark.data.UserAnswer;
 import ru.codemark.test.codemark.data.UserAnswerError;
 import ru.codemark.test.codemark.data.UserAnswerSimple;
 import ru.codemark.test.codemark.dto.UserDto;
 import ru.codemark.test.codemark.entities.User;
 import ru.codemark.test.codemark.mappes.UserMapper;
 import ru.codemark.test.codemark.services.UserService;
+import ru.codemark.test.codemark.validators.UserValidator;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @RestController
@@ -22,11 +26,13 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
+    private final UserValidator userValidator;
 
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserValidator userValidator) {
         this.userService = userService;
+        this.userValidator = userValidator;
     }
 
     @GetMapping("/get_all")
@@ -40,13 +46,15 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addUser(@ModelAttribute(name = "user") User user, BindingResult result){
+    public ResponseEntity<UserAnswer> addUser(@ModelAttribute(name = "user") User user, BindingResult result){
 
-        if (result.hasErrors()){
-            List<String> errors = result.getAllErrors().stream()
-                    .map(e -> e.getDefaultMessage()).collect(Collectors.toList());
+       userValidator.validate(user, result);
+       if (result.hasErrors()){
+        List<String> errors = result.getAllErrors().stream()
+                .map(e -> e.getDefaultMessage()).collect(Collectors.toList());
 
-            return ResponseEntity.badRequest().body(new UserAnswerError().setErrors(errors));
+           UserAnswerError userAnswerError = new UserAnswerError().setErrors(errors);
+           return ResponseEntity.badRequest().body(userAnswerError);
         }
 
        try {

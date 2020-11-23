@@ -15,7 +15,6 @@ import java.util.List;
 public class UserService {
 
     private UserRepository userRepository;
-    private UserValidator userValidator;
 
     @Autowired
     public UserService(UserRepository userRepository){
@@ -27,6 +26,11 @@ public class UserService {
     }
 
     public User createNewUser(User user) throws NotFoundException {
+
+        if(userRepository.getUserByLogin(user.getLogin()) != null){
+            throw new NotFoundException("User already created");
+        }
+
        return userRepository.save(user);
     }
 
