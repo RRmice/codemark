@@ -3,10 +3,14 @@ package ru.codemark.test.codemark.services;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import ru.codemark.test.codemark.data.UserAnswer;
+import ru.codemark.test.codemark.data.UserAnswerError;
 import ru.codemark.test.codemark.entities.User;
 import ru.codemark.test.codemark.repositories.UserRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -49,6 +53,17 @@ public class UserService {
         localUser.setRoles(user.getRoles());
 
         userRepository.saveAndFlush(user);
-        }
+    }
+
+    public UserAnswerError updateErrors(BindingResult result) {
+
+        List<String> errors = result.getAllErrors().stream()
+                .map(e -> e.getDefaultMessage()).collect(Collectors.toList());
+
+        return new UserAnswerError().setErrors(errors);
+
+    }
+
+
 
 }

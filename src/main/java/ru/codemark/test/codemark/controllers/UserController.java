@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import ru.codemark.test.codemark.data.UserAnswer;
 import ru.codemark.test.codemark.data.UserAnswerError;
@@ -18,7 +17,7 @@ import ru.codemark.test.codemark.validators.UserValidator;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 
 @RestController
@@ -50,10 +49,7 @@ public class UserController {
 
        userValidator.validate(user, result);
        if (result.hasErrors()){
-        List<String> errors = result.getAllErrors().stream()
-                .map(e -> e.getDefaultMessage()).collect(Collectors.toList());
-
-           UserAnswerError userAnswerError = new UserAnswerError().setErrors(errors);
+           UserAnswerError userAnswerError = userService.updateErrors(result);
            return ResponseEntity.badRequest().body(userAnswerError);
         }
 
@@ -74,9 +70,17 @@ public class UserController {
     }
 
     @PutMapping("update")
-    public ResponseEntity<?> updateUser(@ModelAttribute(name = "user") User user){
+    public ResponseEntity<?> updateUser(@ModelAttribute(name = "user") User user, BindingResult result){
+
+        userValidator.validate(user, result);
+        if (result.hasErrors()){
+            UserAnswerError userAnswerError = userService.updateErrors(result);
+            return ResponseEntity.badRequest().body(userAnswerError);
+        }
+
         userService.updateUser(user);
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
+
 
 }
