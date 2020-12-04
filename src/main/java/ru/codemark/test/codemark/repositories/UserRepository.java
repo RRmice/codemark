@@ -5,4 +5,5 @@ import ru.codemark.test.codemark.entities.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     User getUserByLogin(String login);
+    void deleteByLogin(String login);
 }

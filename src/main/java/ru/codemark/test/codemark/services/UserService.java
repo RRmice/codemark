@@ -3,8 +3,8 @@ package ru.codemark.test.codemark.services;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import ru.codemark.test.codemark.data.UserAnswer;
 import ru.codemark.test.codemark.data.UserAnswerError;
 import ru.codemark.test.codemark.entities.User;
 import ru.codemark.test.codemark.repositories.UserRepository;
@@ -40,8 +40,10 @@ public class UserService {
         return userRepository.getUserByLogin(login);
     }
 
+    @Transactional
     public void deleteUserByLogin(String login){
-        userRepository.delete(userRepository.getUserByLogin(login));
+        System.out.println(login);
+        userRepository.deleteByLogin(login);
     }
 
     public void updateUser(User user) {

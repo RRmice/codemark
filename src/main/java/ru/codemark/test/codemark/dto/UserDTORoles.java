@@ -5,8 +5,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class RoleDto {
+public class UserDTORoles extends UserDto{
 
-    private String name;
+    private String[] name;
 
 }
